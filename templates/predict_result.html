@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Prediction Result</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Prediction Result</h1>
+    <p class="subtitle">Summary of predicted features and next steps (review or push to ECCO).</p>
+
+    <div class="nav">
+      <a href="/">Mining</a>
+      <a href="/prediction">Prediction</a>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="card">
+      <p class="error">{{ error }}</p>
+      <div class="actions">
+        <a class="btn" href="/prediction">← Back to Prediction</a>
+      </div>
+    </div>
+  {% else %}
+
+    <div class="card">
+      <h2 class="section-title">Run details</h2>
+
+      <div class="grid">
+        <div class="kv">
+          <div><b>Mined file:</b> <code>{{ mined_file }}</code></div>
+          <div style="margin-top:6px;"><b>LLM used:</b> <code>{{ model_name }}</code></div>
+
+          {% if limit_label %}
+            <div style="margin-top:6px;">
+              <b>Commit limit (prediction):</b>
+              {% if limit_label == 'max' %}
+                All commits
+              {% else %}
+                {{ limit_label }}
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <div style="margin-top:10px;"><b>Commits analyzed:</b> {{ summary.commit_count }}</div>
+          <div><b>Unique features detected:</b> {{ summary.unique_feature_count }}</div>
+        </div>
+
+        <div class="kv">
+          <div class="section-title" style="margin-bottom:8px;">Downloads</div>
+
+          <div class="actions" style="margin-top:0;">
+            <a class="btn" href="/download/{{ predicted_file }}"> Predicted JSON</a>
+            <a class="btn" href="/download/{{ mined_file }}"> Mined JSON</a>
+          </div>
+
+          <div class="small">
+            Predicted: <code>{{ predicted_file }}</code><br>
+            Mined: <code>{{ mined_file }}</code>
+          </div>
+
+          <hr>
+
+          <div class="actions" style="margin-top:0;">
+            <a class="btn btn-primary" href="/review?file={{ predicted_file }}">Review predictions</a>
+          </div>
+
+          <div class="small">
+            Review lets you to accept/reject/edit feature names before pushing to ECCO.
+          </div>
+        </div>
+      </div>
+
+      {% if prompt and prompt.strip() %}
+        <hr>
+        <h2 class="section-title">Prompt used</h2>
+        <pre class="prebox">{{ prompt }}</pre>
+      {% endif %}
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <h2 class="section-title">Push predicted commits to ECCO (skip review)</h2>
+
+      <form method="post" action="/ecco/push">
+        <input type="hidden" name="reviewed_file" value="{{ predicted_file }}">
+        <input type="hidden" name="mode" value="predicted">
+
+        <label for="ecco_repo_id">ECCO repositoryHandlerId (optional)</label>
+        <input
+          id="ecco_repo_id"
+          type="number"
+          name="ecco_repo_id"
+          placeholder="Leave empty to auto create or type the selected repository ID"
+        >
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Push to ECCO</button>
+          <a class="btn" href="/prediction">← Run prediction again</a>
+          <a class="btn" href="/">Home</a>
+        </div>
+        <p class="small" style="margin-top:6px;">
+          If left empty, the tool will create or select an ECCO repository using the Git repository name automatically.<br>
+          Only commits with at least one <b>predicted</b> feature will be pushed.
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <h2 class="section-title">Detected features (summary)</h2>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Occurrences</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in summary.features %}
+            <tr>
+              <td>{{ f.name }}</td>
+              <td>{{ f.occurrences }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  {% endif %}
+
+</div>
+
+</body>
+</html>

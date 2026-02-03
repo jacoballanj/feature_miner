@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Prediction Mode</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Prediction Mode</h1>
+    <p class="subtitle">Predict features from mined commits using an existing LLM.</p>
+
+    <div class="nav">
+      <a href="/">Mining</a>
+      <a href="/prediction">Prediction</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Run prediction</h2>
+
+    <form method="post" action="/prediction">
+      <div class="grid">
+
+        <!-- LEFT COLUMN -->
+        <div>
+          <label for="mined_file">Selected mined JSON</label>
+          <select id="mined_file" name="mined_file" required>
+            {% for f in mined_files %}
+              <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
+          </select>
+          <div class="small">Mine first if this list is empty.</div>
+
+          <label for="model_name">Available LLM models</label>
+          <select id="model_name" name="model_name">
+            {% for m in available_models %}
+              <option value="{{ m }}">{{ m }}</option>
+            {% endfor %}
+          </select>
+
+          <label for="commit_limit_prediction">Set commit limit for prediction</label>
+          <select id="commit_limit_prediction" name="commit_limit_prediction">
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="500">500</option>
+            <option value="max">All</option>
+          </select>
+
+          <label for="prompt">Extra prompt instructions (optional)</label>
+          <textarea id="prompt" name="prompt" placeholder="Give more context to the application so that it can return concise feature names for the git commit."></textarea>
+
+          <div class="actions">
+            <button class="btn btn-primary" type="submit">Run prediction</button>
+            <span class="small">Make sure Ollama is running.</span>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+          <div class="kv">
+            <div class="section-title" style="margin-bottom:6px;">Prediction strategy</div>
+
+            <label class="inline">
+              <input type="radio" name="prediction_mode" value="single" checked onchange="toggleBatchOptions()">
+              Single (one commit per prompt)
+            </label>
+
+            <label class="inline" style="margin-top:8px;">
+              <input type="radio" name="prediction_mode" value="batch" onchange="toggleBatchOptions()">
+              Batch (multiple commits per prompt)
+            </label>
+
+            <div id="batch_opts" style="display:none; margin-top:10px;">
+              <label for="batch_size">Batch size</label>
+              <select id="batch_size" name="batch_size">
+                <option value="5"selected >5 commits</option>
+                <option value="10">10 commits</option>
+              </select>
+            </div>
+
+            <hr>
+
+            <label class="inline">
+              <input type="checkbox" id="include_patch" name="include_patch" value="yes" checked>
+              Include mined code patches (if available)
+            </label>
+
+            <div class="small">
+              If unchecked, prediction uses only commit message + changed files (smaller prompts).
+              Keep it unchecked for large code patches to avoid exceeding model context length.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <a class="btn" href="/">← Back to Mining</a>
+    </form>
+  </div>
+
+</div>
+
+<script>
+  function toggleBatchOptions() {
+    const mode = document.querySelector('input[name="prediction_mode"]:checked')?.value;
+    const box = document.getElementById("batch_opts");
+    box.style.display = (mode === "batch") ? "block" : "none";
+  }
+  toggleBatchOptions();
+</script>
+
+</body>
+</html>

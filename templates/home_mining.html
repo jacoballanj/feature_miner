@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Feature Tracing Using LLMs</h1>
+      <p class="subtitle">Mine commits → Predict features → Review(Optional) → Push to ECCO</p>
+      <div class="nav">
+        <a href="/">Mining</a>
+        <a href="/prediction">Prediction</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+
+        <div>
+          <h2 class="section-title">Mining Git commits</h2>
+          <p class="small">Paste a git repository URL to mine git commits and it's metadata.</p>
+
+          <form action="/mine" method="post">
+            <label>Git repository URL</label>
+            <input name="git_url" placeholder="https://github.com/user/repo.git" required>
+
+            <label>Set Commit limit</label>
+            <select name="commit_limit">
+              <option value="10">Last 10 commits</option>
+              <option value="50">Last 50 commits</option>
+              <option value="100" selected>Last 100 commits</option>
+              <option value="500">Last 500 commits</option>
+              <option value="max">All commits</option>
+            </select>
+
+            <label for="patch_lines_per_commit">Limit number of added code lines (included with Git metadata)</label>
+
+            <div class="range-wrap">
+              <input
+                type="range"
+                id="patch_lines_per_commit"
+                name="patch_lines_per_commit"
+                min="0"
+                max="80"
+                step="10"
+                value="40"
+                list="patch_ticks"
+                oninput="document.getElementById('patch_val').innerText=this.value"
+              />
+
+              <datalist id="patch_ticks">
+                <option value="0" label="0"></option>
+                <option value="20" label="20"></option>
+                <option value="40" label="40"></option>
+                <option value="60" label="60"></option>
+                <option value="80" label="80"></option>
+              </datalist>
+
+              <div class="ticks">
+                <span>0</span><span>20</span><span>40</span><span>60</span><span>80</span>
+              </div>
+              <div class="small">
+                Selected: <b><span id="patch_val">40</span></b> lines
+                <span class="small">(0 = no code lines)</span>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" type="submit">Mine repository</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

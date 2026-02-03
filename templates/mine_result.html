@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Mining Result</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Mining Result</h1>
+    <p class="subtitle">The git commit metadata is sucessfully extracted and stored as a JSON file.</p>
+
+    <div class="nav">
+      <a href="/">Mining</a>
+      <a href="/prediction">Prediction</a>
+    </div>
+  </div>
+
+  <div class="card">
+    {% if error %}
+      <p style="color:#b91c1c; font-weight:bold;">{{ error }}</p>
+
+      <div class="actions">
+        <a class="btn" href="/">← Go Back</a>
+      </div>
+
+    {% else %}
+      <div class="grid">
+
+        <div>
+          <h2 class="section-title">Repository details</h2>
+
+            <div class="kv">
+            <p><b>Repository:</b> {{ repo.name }}</p>
+            <p><b>URL:</b> <code>{{ repo.url }}</code></p>
+
+            <p><b>Commit limit:</b>
+                {% if limit_label == 'max' %}
+                All commits
+                {% else %}
+                {{ limit_label }}
+                {% endif %}
+            </p>
+
+            <p><b>Code lines limit:</b>
+                {% if patch_lines_per_commit == 0 %}
+                None (metadata only)
+                {% else %}
+                {{ patch_lines_per_commit }} lines
+                {% endif %}
+            </p>
+
+            <p><b>Commits extracted:</b> {{ count }}</p>
+            </div>
+
+
+          <div class="actions">
+            <a class="btn" href="/download/{{ file }}">⬇ Download {{ file }}</a>
+            <a class="btn btn-primary" href="/prediction?file={{ file }}">→ Go to Prediction</a>
+          </div>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div class="actions">
+        <a class="btn" href="/">Go back</a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+</body>
+</html>

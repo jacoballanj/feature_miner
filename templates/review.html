@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Review Predictions</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Review predictions</h1>
+    <p class="subtitle">
+      Accept or reject each suggested feature. Use <b>Edit</b> to rename it. Only accepted features are saved.
+    </p>
+
+    <div class="nav">
+      <a href="/prediction">← Back to Prediction</a>
+      <a href="/">← Back to Mining</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="meta-grid">
+      <div><b>Predicted file:</b> <code>{{ predicted_file }}</code></div>
+
+      {% if repo and repo.name %}
+        <div><b>Repository:</b> {{ repo.name }}</div>
+      {% endif %}
+
+      {% if meta and meta.model %}
+        <div><b>Used LLM:</b> {{ meta.model }}</div>
+      {% endif %}
+    </div>
+
+    <hr>
+
+    <form method="post" action="/review/save">
+      <input type="hidden" name="predicted_file" value="{{ predicted_file }}">
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Save reviewed features</button>
+        <a class="btn" href="/prediction">← Back</a>
+      </div>
+
+      {% for c in commits %}
+        <div class="commit-card">
+          <div class="commit-head">
+            <div class="commit-title">
+              <span class="muted">Commit</span>
+              <code class="hash">{{ c.hash }}</code>
+            </div>
+
+            {% if c.timestamp or c.author %}
+              <div class="commit-meta muted">
+                {% if c.author %}<span><b>Author:</b> {{ c.author }}</span>{% endif %}
+                {% if c.timestamp %}<span><b>Time:</b> {{ c.timestamp }}</span>{% endif %}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="commit-message">
+            <b>Message:</b> {{ c.message }}
+          </div>
+
+          <div class="split">
+            <div class="panel">
+              <div class="panel-title">Changed files</div>
+              <ul class="file-list">
+                {% for f in c.changed_files %}
+                  <li>
+                    <span class="badge badge-muted">{{ f.status }}</span>
+                    <span class="file-path">{{ f.path }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <div class="panel">
+              <div class="panel-title">Suggested features</div>
+
+              {% if c.features and c.features|length > 0 %}
+                <ul class="feature-list">
+                  {% for feat in c.features %}
+                    <li class="feature-item">
+                      <div class="feature-top">
+                        <div class="feature-name">
+                          <b id="label-{{ c.hash }}-{{ loop.index0 }}">{{ feat.name }}</b>
+                          {% if feat.operation %}
+                            <span class="badge badge-soft">{{ feat.operation }}</span>
+                          {% endif %}
+                        </div>
+
+                        <button
+                          type="button"
+                          class="btn btn-small"
+                          data-hash="{{ c.hash }}"
+                          data-idx="{{ loop.index0 }}"
+                          onclick="toggleEditFromButton(this)">
+                          Edit
+                        </button>
+                      </div>
+
+                      <div class="decision-row">
+                        <label class="radio">
+                          <input
+                            type="radio"
+                            name="decision::{{ c.hash }}::{{ loop.index0 }}"
+                            value="accepted"
+                            checked
+                          >
+                          Accept
+                        </label>
+
+                        <label class="radio">
+                          <input
+                            type="radio"
+                            name="decision::{{ c.hash }}::{{ loop.index0 }}"
+                            value="rejected"
+                          >
+                          Reject
+                        </label>
+                      </div>
+
+                      <div id="editbox-{{ c.hash }}-{{ loop.index0 }}" class="editbox" style="display:none;">
+                        <label class="muted">Custom feature name</label>
+                        <input
+                          class="feature-name-input"
+                          type="text"
+                          name="name::{{ c.hash }}::{{ loop.index0 }}"
+                          value="{{ feat.name }}"
+                        >
+                        <div class="small">e.g., <i>Auth</i>, <i>Search</i>, <i>UI Polish</i>.</div>
+                      </div>
+
+                      {% if feat.files and feat.files|length > 0 %}
+                        <div class="files-row muted">
+                          <span class="muted">files:</span> {{ feat.files | join(", ") }}
+                        </div>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="muted">No features predicted for this commit.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Save reviewed features</button>
+        <a class="btn" href="/prediction">← Back</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleEditFromButton(btn) {
+    const hash = btn.getAttribute("data-hash");
+    const idx = btn.getAttribute("data-idx");
+    const el = document.getElementById(`editbox-${hash}-${idx}`);
+    if (!el) return;
+    el.style.display = (el.style.display === "none" || el.style.display === "") ? "block" : "none";
+  }
+</script>
+
+</body>
+</html>

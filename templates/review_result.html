@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Review Saved</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Review saved </h1>
+    <p class="subtitle">Only accepted features are included in this reviewed file.</p>
+
+    <div class="nav">
+      <a href="/prediction">Back to Prediction</a>
+      <a href="/">Mining</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="kv">
+      <div><b>Based on:</b> <code>{{ predicted_file }}</code></div>
+      <div style="margin-top:6px;"><b>Reviewed JSON:</b> <code>{{ reviewed_file }}</code></div>
+
+      <hr>
+
+      <div><b>Commits stored:</b> {{ summary.stored_commit_count }}</div>
+      <div style="margin-top:6px;"><b>Accepted features stored:</b> {{ summary.accepted_features_total }}</div>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="/download/{{ reviewed_file }}">Download reviewed JSON</a>
+    </div>
+
+    <hr>
+
+    <h3 class="section-title">Push reviewed commits to ECCO</h3>
+
+    <form class="form-row" method="post" action="/ecco/push">
+      <input type="hidden" name="reviewed_file" value="{{ reviewed_file }}">
+      <input type="hidden" name="mode" value="reviewed">
+
+      <label for="ecco_repo_id">ECCO repositoryHandlerId (optional)</label>
+
+      <div class="row-inline">
+        <input
+          id="ecco_repo_id"
+          type="number"
+          name="ecco_repo_id"
+          placeholder="Leave empty to autocreate/type the repositoryHandlerId"
+        >
+        <button class="btn btn-primary" type="submit">Push to ECCO</button>
+      </div>
+
+      <div class="small">
+        If left empty, the tool will create or select an ECCO repository using the Git repository name automatically.
+        Only commits with at least one <b>accepted</b> feature will be pushed.
+      </div>
+    </form>
+
+    <div class="actions">
+      <a class="btn" href="/prediction">Back to Prediction</a>
+      <a class="btn" href="/">Home</a>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

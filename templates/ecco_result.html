@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ECCO Push Result</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>ECCO Push Result</h1>
+    <p class="subtitle">Result of pushing commits and features to ECCO.</p>
+
+    <div class="nav">
+      <a href="/">Mining</a>
+      <a href="/prediction">Prediction</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Push summary</h2>
+
+    <div class="kv">
+      <div><b>Mode:</b> {{ mode }}</div>
+      <div style="margin-top:6px;"><b>Source file:</b> <code>{{ source_file }}</code></div>
+      <div style="margin-top:6px;"><b>ECCO repository ID:</b> {{ ecco_repo_id }}</div>
+    </div>
+
+    {% if error %}
+      <p class="error" style="margin-top:12px;">{{ error }}</p>
+    {% else %}
+      <div class="kv" style="margin-top:12px;">
+        <div><b>Pushed commits:</b> {{ result.pushed_commits }}</div>
+        <div style="margin-top:6px;"><b>Skipped commits:</b> {{ result.skipped_commits }}</div>
+      </div>
+    {% endif %}
+
+    {% if result and result.errors and result.errors|length > 0 %}
+      <div class="kv" style="margin-top:14px;">
+        <div class="section-title">Errors</div>
+        <ul>
+          {% for e in result.errors %}
+            <li>{{ e }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <div class="actions">
+      <a class="btn" href="/">Home</a>
+      <a class="btn" href="/prediction">Back to Prediction</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
