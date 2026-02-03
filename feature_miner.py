@@ -514,7 +514,6 @@ def build_prompt(*, mode: str, commit_blocks: List[str], extra_prompt: str) -> s
     )
     return f"{context}{instructions}\nCOMMIT:\n{commit_blocks[0]}\n"
 
-
 # Run prediction on mined data using the specified model and parameters
 def run_prediction_on_mined_data(mined_data, model, max_commits, extra_prompt, prediction_mode="single", batch_size=5, include_patch=True):
     all_commits = mined_data.get("commits", [])
@@ -1273,9 +1272,3 @@ async def ecco_push(request: Request):
                 "error": str(e),
             },
         )
-
-@app.get("/ecco/debug/repos")
-def ecco_debug_repos():
-    token = ecco_login()
-    repos = ecco_list_repos(token)
-    return {"base_url": ECCO_BASE_URL, "repo_count": len(repos), "repos": repos}

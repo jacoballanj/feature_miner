@@ -17,7 +17,7 @@ This project is a Python FastAPI web application that mines Git repositories, an
 
 ---
 
-## 🛠 Requirements
+## Requirements
 
 - **Ollama** (for local LLM) https://ollama.com/
 - **ECCO REST server** (only for ECCO push) https://github.com/jku-isse/ecco
